@@ -18,7 +18,7 @@
                     <span class="d-none d-md-inline fs-4 title">Dockge</span>
                 </router-link>
 
-                <a v-if="hasNewVersion" target="_blank" href="https://github.com/louislam/dockge/releases" class="ms-2 me-3">
+                <a v-if="hasNewVersion" target="_blank" href="https://github.com/Yogui26/dockge-custom/releases" class="ms-2 me-3">
                     <font-awesome-icon icon="arrow-up" class="notification-icon" />
                 </a>
             </div>
