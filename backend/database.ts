@@ -8,7 +8,6 @@ import knex from "knex";
 // @ts-ignore
 import Dialect from "knex/lib/dialects/sqlite3/index.js";
 
-// @ts-ignore @louislam/sqlite3 v6 no longer ships type declarations
 import sqlite from "@louislam/sqlite3";
 import { sleep } from "../common/util-common";
 
