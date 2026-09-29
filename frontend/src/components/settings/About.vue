@@ -45,7 +45,7 @@
 </template>
 
 <script>
-const LOGO_PATH = "/yogui26.png";
+const LOGO_PATH = "/yogui26.jpg";
 const FALLBACK_LOGO_PATH = "/icon.svg";
 
 export default {
