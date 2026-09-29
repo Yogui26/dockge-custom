@@ -681,7 +681,7 @@ export class Stack {
         await this.updateData();
         if (this.isStarted) {
             sleep(500); // sleep to wait for terminal output finished
- 
+
             exitCode = await Terminal.exec(this.server, socket, terminalName, "docker", [ "compose", "up", "-d", "--remove-orphans" ], this.path);
             if (exitCode !== 0) {
                 throw new Error("Failed to restart, please check the terminal output for more information.");
