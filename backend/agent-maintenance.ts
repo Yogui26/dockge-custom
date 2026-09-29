@@ -1,10 +1,34 @@
 import { DockgeServer } from "./dockge-server";
 import { DockerArtefactAction, DockerArtefactData, DockerArtefactInfos } from "../common/types";
 import { getAgentMaintenanceTerminalName } from "../common/util-common";
-import { DockgeSocket } from "./util-server";
+import { DockgeSocket, ValidationError } from "./util-server";
 import { Terminal } from "./terminal";
 import { log } from "./log";
 import childProcessAsync from "promisify-child-process";
+
+const ALLOWED_ARTEFACTS = [ "container", "image", "network", "volume" ];
+
+/**
+ * Only allow known docker object types, so client input can never become a docker sub command or flag.
+ * @param artefact Docker object type sent by the client
+ */
+function assertArtefact(artefact: string) {
+    if (!ALLOWED_ARTEFACTS.includes(artefact)) {
+        throw new ValidationError(`Unsupported artefact '${artefact}'`);
+    }
+}
+
+/**
+ * Reject ids that are empty or could be interpreted as a docker option.
+ * @param ids Object ids or names sent by the client
+ */
+function assertIds(ids: string[]) {
+    for (const id of ids) {
+        if (id.length === 0 || id.startsWith("-") || /[\s\0]/.test(id)) {
+            throw new ValidationError("Invalid id");
+        }
+    }
+}
 
 export class AgentMaintenance {
 
@@ -231,6 +255,7 @@ export class AgentMaintenance {
     }
 
     async prune(socket: DockgeSocket, artefact: string, all: boolean) {
+        assertArtefact(artefact);
         const terminalName = getAgentMaintenanceTerminalName(socket.endpoint);
 
         const dockerParams = [ artefact, "prune", "-f" ];
@@ -248,6 +273,8 @@ export class AgentMaintenance {
     }
 
     async remove(socket: DockgeSocket, artefact: string, ids: string[]) {
+        assertArtefact(artefact);
+        assertIds(ids);
         const terminalName = getAgentMaintenanceTerminalName(socket.endpoint);
 
         const dockerParams = [ artefact, "rm" ];
@@ -265,6 +292,7 @@ export class AgentMaintenance {
     }
 
     async pullImages(socket: DockgeSocket, ids: string[]) {
+        assertIds(ids);
         const terminalName = getAgentMaintenanceTerminalName(socket.endpoint);
 
         let overallExitCode = 0;
