@@ -1,7 +1,14 @@
 import dayjs from "dayjs";
-import timezones from "timezones-list";
+import timezonesModule, { TimeZone } from "timezones-list";
 import { localeDirection, currentLocale } from "./i18n";
 import { POSITION } from "vue-toastification";
+
+// timezones-list is a CommonJS module that exports `{ __esModule, default: [...] }`.
+// Depending on the bundler (vite 5 / esbuild vs vite 8 / rolldown) the default import
+// is either the list itself or the module object, so support both.
+const timezones: TimeZone[] = Array.isArray(timezonesModule)
+    ? timezonesModule
+    : (timezonesModule as unknown as { default: TimeZone[] }).default;
 
 /**
  * Returns the offset from UTC in hours for the current locale.
