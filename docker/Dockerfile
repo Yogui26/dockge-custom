@@ -4,6 +4,16 @@
 FROM louislam/dockge:build-healthcheck AS build_healthcheck
 
 ############################################
+# Frontend build (runs once on the build machine, the output is platform independent)
+############################################
+FROM --platform=$BUILDPLATFORM node:22-bookworm-slim AS build_frontend
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+COPY . .
+RUN npm run build:frontend
+
+############################################
 # Build
 ############################################
 FROM louislam/dockge:base AS build
@@ -20,6 +30,7 @@ WORKDIR /app
 COPY --chown=node:node --from=build_healthcheck /app/extra/healthcheck /app/extra/healthcheck
 COPY --from=build /app/node_modules /app/node_modules
 COPY --chown=node:node  . .
+COPY --chown=node:node --from=build_frontend /app/frontend-dist /app/frontend-dist
 RUN mkdir ./data
 
 

@@ -9,7 +9,8 @@ tmp
 
 # Docker extra
 docker
-frontend
+# Built inside the image by the build_frontend stage
+frontend-dist
 .editorconfig
 .eslintrc.cjs
 .git

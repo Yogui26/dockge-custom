@@ -12,12 +12,20 @@ Details about my changes are available in the [release notes](https://github.com
 
 ## Usage
 
-To use this fork, replace `louislam/dockge:1` with `hamphh/dockge` in the [Dockge compose file](https://github.com/hamphh/dockge/blob/master/compose.yaml).  
+To use this fork, replace `louislam/dockge:1` with `ghcr.io/yogui26/dockge-custom:latest` in the [Dockge compose file](compose.yaml).  
 The new image must be used on all endpoints.
+
+The image is built and published automatically by GitHub Actions on every push to `master` (tags: `latest`, `master`, `sha-<commit>`). If `docker pull` is denied, the package is still private: make it public in the package settings on GitHub, or log in with `docker login ghcr.io` and a token that has the `read:packages` scope.
+
+To build it yourself, no Node.js is needed on the host, the frontend is compiled inside the image:
+
+```bash
+docker build -f docker/Dockerfile --target release -t dockge-custom:test .
+```
 
 ⚠️ **Important:** Make a backup of your Dockge data folder beforehand or use a different one, as this image modifies the database.  
 
-Currently, the image is built for **linux/amd64**, **linux/arm/v7** and **linux/arm64**. Additional platforms can be added if needed.
+Currently, the published image is built for **linux/amd64** and **linux/arm64**. **linux/arm/v7** can be added from the workflow's manual run (`Actions` > `Publish Docker image` > `Run workflow`).
 
 ## Security notes
 

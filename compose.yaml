@@ -1,6 +1,6 @@
 services:
   dockge:
-    image: louislam/dockge:1
+    image: ghcr.io/yogui26/dockge-custom:latest
     restart: unless-stopped
     ports:
       # Host Port : Container Port
