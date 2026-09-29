@@ -1,12 +1,10 @@
 # Security Policy
 
-## Reporting a Vulnerability
+This repository is a fork of [hamphh/dockge](https://github.com/hamphh/dockge), itself a fork of [louislam/dockge](https://github.com/louislam/dockge).
 
-1. Please report security issues to https://github.com/louislam/dockge/security/advisories/new.
-1. Please also create an empty security issue to alert me, as GitHub Advisories do not send a notification, I probably will miss it without this. https://github.com/louislam/dockge/issues/new?assignees=&labels=help&template=security.md
+## Reporting a vulnerability
 
-Do not use the public issue tracker or discuss it in public as it will cause more damage.
+1. For issues specific to this fork, please use a private advisory: https://github.com/Yogui26/dockge-custom/security/advisories/new
+2. For issues that also exist in the original Dockge, please report them upstream: https://github.com/louislam/dockge/security/advisories/new
 
-## Do you accept other 3rd-party bug bounty platforms?
-
-At this moment, I DO NOT accept other bug bounty platforms, because I am not familiar with these platforms and someone has tried to send a phishing link to me by doing this already. To minimize my own risk, please report through GitHub Advisories only. I will ignore all 3rd-party bug bounty platforms emails.
+Please do not use the public issue tracker or discuss vulnerabilities in public.
