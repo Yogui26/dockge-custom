@@ -18,3 +18,9 @@ The new image must be used on all endpoints.
 ⚠️ **Important:** Make a backup of your Dockge data folder beforehand or use a different one, as this image modifies the database.  
 
 Currently, the image is built for **linux/amd64**, **linux/arm/v7** and **linux/arm64**. Additional platforms can be added if needed.
+
+## Security notes
+
+- This repository tracks [hamphh/dockge](https://github.com/hamphh/dockge) and cherry-picks security fixes from [louislam/dockge](https://github.com/louislam/dockge) when they are missing.
+- Dockge needs access to the Docker socket, which is equivalent to root access on the host. Do not expose it directly to the internet, put it behind a reverse proxy with TLS and, if possible, an additional authentication layer.
+- Only enable the `trustProxy` setting when Dockge is really behind a proxy you control.

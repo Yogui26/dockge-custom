@@ -12,6 +12,11 @@ export class ImageRepository {
     }
 
     async update(stack: string, service: string, image: string): Promise<ImageInfo> {
+        if (image.startsWith("-")) {
+            // Not a valid image reference, never pass it to skopeo as it could be read as an option
+            return new ImageInfo("", "", "");
+        }
+
         let imageInfo = await this.updateLocal(stack, service, image);
 
         if (!!imageInfo.localDigest && !image.startsWith("sha256:")) {
@@ -34,7 +39,7 @@ export class ImageRepository {
     async updateLocal(stack: string, service: string, image: string): Promise<ImageInfo> {
         let imageInfo = this.getImageInfo(stack, service, image);
 
-        const resLocal = await childProcessAsync.spawn("docker", [ "inspect", "--format", "json", image ], {
+        const resLocal = await childProcessAsync.spawn("docker", [ "inspect", "--format", "json", "--", image ], {
             encoding: "utf-8",
         });
 
