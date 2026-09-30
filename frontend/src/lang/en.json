@@ -120,6 +120,8 @@
     "dockgeURL": "Dockge URL (e.g. http://127.0.0.1:5001)",
     "agentOnline": "Online",
     "agentOffline": "Offline",
+    "diskSpace": "Disk space",
+    "diskSpaceTooltip": "Filesystem of the stacks folder",
     "connecting": "Connecting",
     "connect": "Connect",
     "addAgent": "Add Agent",

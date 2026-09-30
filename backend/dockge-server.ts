@@ -21,7 +21,7 @@ import { R } from "redbean-node";
 import { genSecret, isDev, LooseObject } from "../common/util-common";
 import { generatePasswordHash } from "./password-hash";
 import { Bean } from "redbean-node/dist/bean";
-import { Arguments, Config, DockgeSocket } from "./util-server";
+import { Arguments, Config, DockgeSocket, getDiskUsage } from "./util-server";
 import { DockerSocketHandler } from "./agent-socket-handlers/docker-socket-handler";
 import expressStaticGzip from "express-static-gzip";
 import path from "path";
@@ -343,6 +343,8 @@ export class DockgeServer {
             log.error("server", e);
         }
 
+        this.sendDiskUsage();
+
         socket.instanceManager.sendAgentList();
 
         // Also connect to other dockge instances
@@ -405,6 +407,7 @@ export class DockgeServer {
             }, () => {
                 //log.debug("server", "Cron job running");
                 this.sendStackList(true);
+                this.sendDiskUsage();
             });
 
             checkVersion.startInterval();
@@ -667,6 +670,40 @@ export class DockgeServer {
                     stackList: Object.fromEntries(map),
                 });
             }
+        }
+    }
+
+    /**
+     * Send the disk usage of the stacks folder to all logged in sockets.
+     * The event name is "diskUsage", the endpoint is added by emitAgent() like for the stack list.
+     */
+    async sendDiskUsage() {
+        try {
+            let diskUsage;
+
+            for (let socket of this.io.sockets.sockets.values()) {
+                let dockgeSocket = socket as DockgeSocket;
+
+                if (!dockgeSocket.userID) {
+                    continue;
+                }
+
+                if (!diskUsage) {
+                    diskUsage = await getDiskUsage(this.stacksDir);
+
+                    if (!diskUsage) {
+                        return;
+                    }
+                }
+
+                // A new object per socket, emitAgent() adds the endpoint to it
+                dockgeSocket.emitAgent("diskUsage", {
+                    ok: true,
+                    ...diskUsage,
+                });
+            }
+        } catch (e) {
+            log.error("server", e);
         }
     }
 

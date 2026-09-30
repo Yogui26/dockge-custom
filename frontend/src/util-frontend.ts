@@ -193,3 +193,34 @@ export function getToastErrorTimeout() {
     return errorTimeout;
 }
 
+
+const BYTE_UNITS = [ "byte", "kilobyte", "megabyte", "gigabyte", "terabyte", "petabyte" ];
+
+/**
+ * Format a size in bytes the way "df -h" does (powers of 1024), with the unit of the current language.
+ * @param bytes Size in bytes
+ * @returns For example "12.5 GB" in English and "12,5 Go" in French
+ */
+export function formatBytes(bytes : number) : string {
+    let value = Math.max(bytes, 0);
+    let unitIndex = 0;
+
+    while (value >= 1024 && unitIndex < BYTE_UNITS.length - 1) {
+        value /= 1024;
+        unitIndex++;
+    }
+
+    const options = {
+        style: "unit",
+        unit: BYTE_UNITS[unitIndex],
+        unitDisplay: "short",
+        maximumFractionDigits: value >= 100 ? 0 : 1,
+    } as Intl.NumberFormatOptions;
+
+    try {
+        return new Intl.NumberFormat(currentLocale(), options).format(value);
+    } catch (_) {
+        // Unknown language tag
+        return new Intl.NumberFormat("en", options).format(value);
+    }
+}

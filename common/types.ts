@@ -45,6 +45,15 @@ export type AgentData = {
     name: string
 }
 
+/**
+ * Disk usage of the filesystem that holds the stacks folder of an instance (in bytes)
+ */
+export type DiskUsageData = {
+    total: number,
+    used: number,
+    free: number,
+}
+
 export enum DockerArtefactAction {
     Prune = "prune",
     PruneAll = "pruneAll",

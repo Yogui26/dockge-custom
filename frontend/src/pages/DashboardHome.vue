@@ -1,4 +1,4 @@
-stackStatusList<template>
+<template>
     <transition ref="tableContainer" name="slide-fade" appear>
         <div v-if="$route.name === 'DashboardHome'">
             <h1 class="mb-3">
@@ -66,6 +66,17 @@ stackStatusList<template>
                                 </template>
                             </div>
 
+                            <!-- Disk usage, only for agents that report it -->
+                            <div v-if="agentStatusList[endpoint] === 'online' && diskUsageList[endpoint]" class="disk-usage mt-3" :title="$t('diskSpaceTooltip')">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>{{ $t("diskSpace") }}</span>
+                                    <span>{{ formatBytes(diskUsageList[endpoint].used) }} / {{ formatBytes(diskUsageList[endpoint].total) }} ({{ getDiskPercent(endpoint) }}%)</span>
+                                </div>
+                                <div class="progress" role="progressbar" :aria-valuenow="getDiskPercent(endpoint)" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar" :class="getDiskBarClass(endpoint)" :style="{ width: getDiskPercent(endpoint) + '%' }"></div>
+                                </div>
+                            </div>
+
                             <!-- Edit Dialog -->
                             <BModal v-model="showEditAgentNameDialog[agent.endpoint]" :title="!!endpoint ? endpoint : 'Master'" :no-close-on-backdrop="true" :close-on-esc="true" :okTitle="$t('Update Name')" okVariant="primary" @ok="updateAgentName(agent, editAgentNewName[agent.endpoint])">
                                 <input :id="'nameUpdate' + agent.endpoint" v-model="editAgentNewName[agent.endpoint]" type="text" class="form-control">
@@ -123,8 +134,9 @@ stackStatusList<template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { AgentData, SimpleStackData } from "../../../common/types";
+import { AgentData, DiskUsageData, SimpleStackData } from "../../../common/types";
 import { StackFilter, StackStatusInfo } from "../../../common/util-common";
+import { formatBytes } from "../util-frontend";
 
 export default defineComponent({
     components: {
@@ -159,6 +171,9 @@ export default defineComponent({
         },
         agentStatusList(): Record<string, string> {
             return this.$root.agentStatusList;
+        },
+        diskUsageList(): Record<string, DiskUsageData> {
+            return this.$root.agentDiskUsage;
         },
         stackList(): Record<string, SimpleStackData> {
             return this.$root.completeStackList;
@@ -219,6 +234,26 @@ export default defineComponent({
     },
 
     methods: {
+
+        formatBytes,
+
+        getDiskPercent(endpoint: string): number {
+            const usage = this.diskUsageList[endpoint];
+            if (!usage || usage.total <= 0) {
+                return 0;
+            }
+            return Math.min(Math.round(usage.used / usage.total * 100), 100);
+        },
+
+        getDiskBarClass(endpoint: string): string {
+            const percent = this.getDiskPercent(endpoint);
+            if (percent >= 90) {
+                return "bg-danger";
+            } else if (percent >= 75) {
+                return "bg-warning";
+            }
+            return "bg-primary";
+        },
 
         getInfoStyle(info: StackStatusInfo) {
             return `color: var(--dockge-${info.textColor}-color);`;
@@ -405,6 +440,14 @@ export default defineComponent({
 .url {
     font-size: 0.8rem;
     color: #6c757d;
+}
+
+.disk-usage {
+    font-size: 0.85rem;
+
+    .progress {
+        height: 6px;
+    }
 }
 
 .shadow-box {

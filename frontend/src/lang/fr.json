@@ -108,6 +108,8 @@
     "dockgeURL": "URL de Dockge (e.g. http://127.0.0.1:5001)",
     "agentOnline": "En ligne",
     "agentOffline": "Hors ligne",
+    "diskSpace": "Espace disque",
+    "diskSpaceTooltip": "Système de fichiers du dossier des stacks",
     "connecting": "Connexion",
     "addAgent": "Ajouter un agent",
     "agentAddedSuccessfully": "Agent ajouté avec succès.",
