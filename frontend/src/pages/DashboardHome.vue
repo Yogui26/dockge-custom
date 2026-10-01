@@ -37,12 +37,17 @@
                                     <!-- Edit Name  -->
                                     <font-awesome-icon class="ms-3 action-icon" icon="pen-to-square" @click="editAgentName(agent)" />
 
+                                    <!-- Live log of the agent -->
+                                    <router-link v-if="agentStatusList[endpoint] === 'online'" class="ms-3 action-icon" data-toggle="tooltip" :title="$t('tooltipAgentLog')" :aria-label="$t('serverLog')" :to="getAgentLogRouteLink(agent)">
+                                        <font-awesome-icon icon="file-lines" />
+                                    </router-link>
+
                                     <!-- Remove Button -->
                                     <font-awesome-icon v-if="endpoint !== ''" class="ms-3 action-icon" icon="trash" @click="showRemoveAgentDialog[agent.endpoint] = !showRemoveAgentDialog[agent.endpoint]" />
                                 </div>
 
-                                <router-link v-if="agentStatusList[endpoint] === 'online'" class="btn btn-sm btn-normal" data-toggle="tooltip" :title="$t('tooltipAgentMaintenance')" :to="getAgentRouteLink(agent)">
-                                    <font-awesome-icon icon="wrench" class="me-2" />{{ $t("maintenance") }}
+                                <router-link v-if="agentStatusList[endpoint] === 'online'" class="btn btn-sm btn-normal" data-toggle="tooltip" :title="$t('tooltipAgentMaintenance')" :aria-label="$t('maintenance')" :to="getAgentRouteLink(agent)">
+                                    <font-awesome-icon icon="wrench" />
                                 </router-link>
                             </div>
 
@@ -269,6 +274,10 @@ export default defineComponent({
             } else {
                 return "/agent";
             }
+        },
+
+        getAgentLogRouteLink(agent) {
+            return !!agent.endpoint ? `/serverlog/${agent.endpoint}` : "/serverlog";
         },
 
         getStatusCount(status: number[]): number {

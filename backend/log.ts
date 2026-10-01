@@ -2,6 +2,7 @@
 // https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
 import { intHash, isDev } from "../common/util-common";
 import dayjs from "dayjs";
+import { format } from "node:util";
 
 export const CONSOLE_STYLE_Reset = "\x1b[0m";
 export const CONSOLE_STYLE_Bright = "\x1b[1m";
@@ -57,6 +58,9 @@ const consoleLevelColors : Record<string, string> = {
     "DEBUG": CONSOLE_STYLE_FgGray,
 };
 
+// Number of log lines kept in memory for the live log page
+const LOG_HISTORY_SIZE = 500;
+
 class Logger {
 
     /**
@@ -74,6 +78,44 @@ class Logger {
         error: [],
         debug: [],
     };
+
+    /**
+     * Last lines written to the log (with console colors), kept for the live log page.
+     */
+    private history : string[] = [];
+    private listeners : Set<(line : string) => void> = new Set();
+
+    /**
+     * Get the last log lines, each one ends with a line break.
+     */
+    getHistory() : string[] {
+        return this.history;
+    }
+
+    /**
+     * Be notified of each new log line.
+     * @param listener Called with the line (ends with a line break)
+     * @returns A function to stop listening
+     */
+    onLine(listener : (line : string) => void) : () => void {
+        this.listeners.add(listener);
+        return () => this.listeners.delete(listener);
+    }
+
+    private record(args : unknown[]) {
+        const line = format(...args).replace(/\r?\n/g, "\r\n") + "\r\n";
+        this.history.push(line);
+        if (this.history.length > LOG_HISTORY_SIZE) {
+            this.history.shift();
+        }
+        for (const listener of this.listeners) {
+            try {
+                listener(line);
+            } catch (_) {
+                // A broken listener must never break logging
+            }
+        }
+    }
 
     /**
      *
@@ -130,8 +172,10 @@ class Logger {
 
         if (level === "INFO") {
             console.info(timePart, modulePart, levelPart, msg);
+            this.record([ timePart, modulePart, levelPart, msg ]);
         } else if (level === "WARN") {
             console.warn(timePart, modulePart, levelPart, msg);
+            this.record([ timePart, modulePart, levelPart, msg ]);
         } else if (level === "ERROR") {
             let msgPart : unknown;
             if (typeof msg === "string") {
@@ -140,6 +184,7 @@ class Logger {
                 msgPart = msg;
             }
             console.error(timePart, modulePart, levelPart, msgPart);
+            this.record([ timePart, modulePart, levelPart, msgPart ]);
         } else if (level === "DEBUG") {
             if (isDev) {
                 timePart = CONSOLE_STYLE_FgGray + now + CONSOLE_STYLE_Reset;
@@ -150,9 +195,11 @@ class Logger {
                     msgPart = msg;
                 }
                 console.debug(timePart, modulePart, levelPart, msgPart);
+                this.record([ timePart, modulePart, levelPart, msgPart ]);
             }
         } else {
             console.log(timePart, modulePart, msg);
+            this.record([ timePart, modulePart, msg ]);
         }
     }
 

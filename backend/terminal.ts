@@ -306,3 +306,46 @@ export class MainTerminal extends InteractiveTerminal {
         super.write(input);
     }
 }
+
+/**
+ * Read-only terminal that streams the log of the Dockge server itself (not a process).
+ */
+export class ServerLogTerminal extends Terminal {
+    static readonly NAME = "server-log";
+
+    constructor(server : DockgeServer) {
+        super(server, ServerLogTerminal.NAME, "", [], "");
+
+        log.onLine((line) => {
+            for (const socketID in this.socketList) {
+                const socket = this.socketList[socketID];
+                if (socket.connected) {
+                    socket.emitAgent("terminalWrite", this.name, line);
+                } else {
+                    this.leave(socket);
+                }
+            }
+        });
+    }
+
+    // Nothing to spawn, the lines come from the logger
+    public start() {
+        // no-op
+    }
+
+    getBuffer() : string {
+        return log.getHistory().join("");
+    }
+
+    /**
+     * Get the server log terminal, create it when needed.
+     * @param server
+     */
+    public static getOrCreate(server : DockgeServer) : ServerLogTerminal {
+        const existing = Terminal.getTerminal(ServerLogTerminal.NAME);
+        if (existing instanceof ServerLogTerminal) {
+            return existing;
+        }
+        return new ServerLogTerminal(server);
+    }
+}

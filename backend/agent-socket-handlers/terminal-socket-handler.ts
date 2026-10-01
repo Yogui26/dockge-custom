@@ -1,7 +1,7 @@
 import { DockgeServer } from "../dockge-server";
 import { callbackError, callbackResult, checkLogin, DockgeSocket, ValidationError } from "../util-server";
 import { log } from "../log";
-import { InteractiveTerminal, MainTerminal, Terminal } from "../terminal";
+import { InteractiveTerminal, MainTerminal, ServerLogTerminal, Terminal } from "../terminal";
 import { AgentSocketHandler } from "../agent-socket-handler";
 import { AgentSocket } from "../../common/agent-socket";
 
@@ -64,6 +64,22 @@ export class TerminalSocketHandler extends AgentSocketHandler {
 
                 callbackResult({
                     ok: true,
+                }, callback);
+            } catch (e) {
+                callbackError(e, callback);
+            }
+        });
+
+        // Live log of the Dockge server
+        agentSocket.on("joinServerLog", async (callback) => {
+            try {
+                checkLogin(socket);
+
+                ServerLogTerminal.getOrCreate(server).join(socket);
+
+                callbackResult({
+                    ok: true,
+                    terminalName: ServerLogTerminal.NAME,
                 }, callback);
             } catch (e) {
                 callbackError(e, callback);
