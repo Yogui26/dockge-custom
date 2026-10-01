@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.1
+
+### Corrections
+- Page d'accueil : l'icône du log en direct est harmonisée avec les icônes « Modifier » et « Supprimer » (même taille, même couleur, même alignement).
+
 ## 2.2.0
 
 ### Nouveautés

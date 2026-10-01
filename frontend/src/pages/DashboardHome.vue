@@ -38,9 +38,7 @@
                                     <font-awesome-icon class="ms-3 action-icon" icon="pen-to-square" @click="editAgentName(agent)" />
 
                                     <!-- Live log of the agent -->
-                                    <router-link v-if="agentStatusList[endpoint] === 'online'" class="ms-3 action-icon" data-toggle="tooltip" :title="$t('tooltipAgentLog')" :aria-label="$t('serverLog')" :to="getAgentLogRouteLink(agent)">
-                                        <font-awesome-icon icon="file-lines" />
-                                    </router-link>
+                                    <font-awesome-icon v-if="agentStatusList[endpoint] === 'online'" class="ms-3 action-icon" icon="file-lines" data-toggle="tooltip" :title="$t('tooltipAgentLog')" :aria-label="$t('serverLog')" role="link" @click="$router.push(getAgentLogRouteLink(agent))" />
 
                                     <!-- Remove Button -->
                                     <font-awesome-icon v-if="endpoint !== ''" class="ms-3 action-icon" icon="trash" @click="showRemoveAgentDialog[agent.endpoint] = !showRemoveAgentDialog[agent.endpoint]" />
