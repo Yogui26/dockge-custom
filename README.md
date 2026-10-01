@@ -2,13 +2,38 @@
     <img src="./frontend/public/icon.svg" width="128" alt="" />
 </div>
 
-# Fork of Dockge
+# Dockge Custom
 
-This is a fork of the excellent [Dockge](https://github.com/louislam/dockge) by [@louislam](https://github.com/louislam).  
-Since I was missing some features and the project doesn’t seem to be actively maintained at the moment, I have implemented these features here in my fork.
+Dockge Custom is a fork of [hamphh/dockge](https://github.com/hamphh/dockge), which is itself a fork of the excellent [Dockge](https://github.com/louislam/dockge) by [@louislam](https://github.com/louislam).
 
-For general information about Dockge, please refer to the original project.  
-Details about my changes are available in the [release notes](https://github.com/hamphh/dockge/releases).
+```
+louislam/dockge  ──►  hamphh/dockge  ──►  Yogui26/dockge-custom (this repository)
+   original            1st fork              2nd fork
+```
+
+For general information about Dockge (what it is, how to use stacks, agents, the interactive editor…), please refer to the original project. This README only describes what differs.
+
+## What each fork adds
+
+### [louislam/dockge](https://github.com/louislam/dockge) — the original project
+
+A self-hosted manager for Docker Compose stacks: compose editor, `docker run` to compose converter, interactive terminal, container logs and multi-server management through agents.
+
+### [hamphh/dockge](https://github.com/hamphh/dockge) — first fork
+
+- **Stack update management**: detects when a newer image exists for the services of a stack (local digest compared with the registry digest, using `skopeo`), shows an "Update available" indicator and filter, and lets you update a stack or a single service. It can be tuned per service with the labels `dockge.imageupdates.check`, `dockge.imageupdates.ignore` and `dockge.imageupdates.changelog`, and the status of a service can be ignored with `dockge.status.ignore`.
+- **Server maintenance** (per agent): list, prune, pull and delete Docker images, networks and volumes.
+- Resource usage statistics on the compose page and several UI fixes.
+
+### Yogui26/dockge-custom — this fork
+
+- **Published image** on `ghcr.io/yogui26/dockge-custom` (linux/amd64 and linux/arm64) built by GitHub Actions; the frontend is compiled inside the Docker build and `skopeo` is included in the image.
+- **Dependencies and security**: major dependency upgrades (Vite 8, redbean-node 0.4, knex 3.3…), security fixes, hardened maintenance actions (allow-listed artefacts, validated identifiers, no `v-html` on image data), CI, Dependabot and refreshed security notes.
+- **Home page**: disk space used / total for each agent, a compact maintenance button and a **live log** page for every agent (the log of the Dockge server itself).
+- **About page and update check** rewritten for this fork: the logo, the links to the three projects and the new-version notice follow the releases of this repository.
+- **Versioning**: versions start at 1.0.0 and moved to 2.x so that the agents are not refused by the minimum agent version (1.4.0) inherited from the original project. See the [changelog](CHANGELOG.md) for the details of each version.
+
+All the agents connected to the same Dockge must use this image (and, for the newest features such as the live log, the same version).
 
 ## Usage
 
@@ -29,6 +54,6 @@ Currently, the published image is built for **linux/amd64** and **linux/arm64**.
 
 ## Security notes
 
-- This repository tracks [hamphh/dockge](https://github.com/hamphh/dockge) and cherry-picks security fixes from [louislam/dockge](https://github.com/louislam/dockge) when they are missing.
+- This repository tracks [hamphh/dockge](https://github.com/hamphh/dockge) (itself a fork of [louislam/dockge](https://github.com/louislam/dockge)) and cherry-picks security fixes from [louislam/dockge](https://github.com/louislam/dockge) when they are missing.
 - Dockge needs access to the Docker socket, which is equivalent to root access on the host. Do not expose it directly to the internet, put it behind a reverse proxy with TLS and, if possible, an additional authentication layer.
 - Only enable the `trustProxy` setting when Dockge is really behind a proxy you control.
