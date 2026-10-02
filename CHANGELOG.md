@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.0
+
+### Améliorations
+- En-tête : le bouton **Console** est supprimé (accès jugé dangereux). La page `/console` reste inactive tant que la console n'est pas activée dans la configuration du serveur.
+- En-tête : le menu déroulant (Analyser le dossier des piles, Paramètres, Déconnexion) devient un bouton **Menu** au même style que « Accueil » et « Stacks » (icône et libellé), pour une vue mobile plus homogène.
+
 ## 2.2.1
 
 ### Corrections
