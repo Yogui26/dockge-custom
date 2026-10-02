@@ -28,7 +28,7 @@
                                     v-model="currentPassword"
                                     type="password"
                                     class="form-control"
-                                    autocomplete="current-password"
+                                    autocomplete="new-password" data-lpignore="true" data-1p-ignore
                                     required
                                 />
                             </div>

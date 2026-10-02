@@ -80,46 +80,55 @@ class CheckVersion {
     latestVersion? : string;
     interval? : NodeJS.Timeout;
 
+    /**
+     * Look for the latest published version.
+     * @param force Check even if the update check is disabled in the settings (manual check)
+     * @returns The latest version found, if any
+     */
+    async check(force = false) : Promise<string | undefined> {
+        if (!force && await Settings.get("checkUpdate") === false) {
+            return this.latestVersion;
+        }
+
+        log.debug("update-checker", "Retrieving latest versions");
+
+        try {
+            const checkBeta = await Settings.get("checkBeta") === true;
+
+            // Published releases first, then plain git tags if no release has been created
+            const releases = (await fetchList(RELEASES_URL)) as { tag_name?: unknown, prerelease?: boolean, draft?: boolean }[];
+            let latest = pickLatestVersion(releases.map(r => ({
+                tag: r.tag_name,
+                prerelease: r.prerelease,
+                draft: r.draft,
+            })), checkBeta);
+
+            if (!latest) {
+                const tags = (await fetchList(TAGS_URL)) as { name?: unknown }[];
+                latest = pickLatestVersion(tags.map(t => ({ tag: t.name })), checkBeta);
+            }
+
+            // For debug
+            if (process.env.TEST_CHECK_VERSION === "1") {
+                latest = "1000.0.0";
+            }
+
+            if (latest) {
+                this.latestVersion = latest;
+            }
+        } catch (e) {
+            log.info("update-checker", "Failed to check for new versions");
+            if (force) {
+                throw e;
+            }
+        }
+
+        return this.latestVersion;
+    }
+
     async startInterval() {
-        const check = async () => {
-            if (await Settings.get("checkUpdate") === false) {
-                return;
-            }
-
-            log.debug("update-checker", "Retrieving latest versions");
-
-            try {
-                const checkBeta = await Settings.get("checkBeta") === true;
-
-                // Published releases first, then plain git tags if no release has been created
-                const releases = (await fetchList(RELEASES_URL)) as { tag_name?: unknown, prerelease?: boolean, draft?: boolean }[];
-                let latest = pickLatestVersion(releases.map(r => ({
-                    tag: r.tag_name,
-                    prerelease: r.prerelease,
-                    draft: r.draft,
-                })), checkBeta);
-
-                if (!latest) {
-                    const tags = (await fetchList(TAGS_URL)) as { name?: unknown }[];
-                    latest = pickLatestVersion(tags.map(t => ({ tag: t.name })), checkBeta);
-                }
-
-                // For debug
-                if (process.env.TEST_CHECK_VERSION === "1") {
-                    latest = "1000.0.0";
-                }
-
-                if (latest) {
-                    this.latestVersion = latest;
-                }
-            } catch (_) {
-                log.info("update-checker", "Failed to check for new versions");
-            }
-
-        };
-
-        await check();
-        this.interval = setInterval(check, UPDATE_CHECKER_INTERVAL_MS);
+        await this.check();
+        this.interval = setInterval(() => this.check(), UPDATE_CHECKER_INTERVAL_MS);
     }
 }
 

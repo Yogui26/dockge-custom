@@ -105,6 +105,21 @@ export class DockerSocketHandler extends AgentSocketHandler {
             }
         });
 
+        // Check the registries for new images now (instead of waiting for the next periodic check)
+        agentSocket.on("checkImageUpdates", async (callback) => {
+            try {
+                checkLogin(socket);
+                await server.checkImageUpdatesNow();
+                callbackResult({
+                    ok: true,
+                    msg: "imageUpdatesChecked",
+                    msgi18n: true,
+                }, callback);
+            } catch (e) {
+                callbackError(e, callback);
+            }
+        });
+
         // startStack
         agentSocket.on("startStack", async (stackName : unknown, callback) => {
             try {

@@ -64,13 +64,35 @@
                 </button>
             </div>
         </form>
+
+        <!-- Actions -->
+        <h5 class="my-4 settings-subheading">{{ $t("generalActions") }}</h5>
+
+        <div class="mb-4">
+            <button class="btn btn-outline-primary mb-2" type="button" @click="scanFolder">
+                <font-awesome-icon icon="arrows-rotate" class="me-1" /> {{ $t("scanFolder") }}
+            </button>
+            <div class="form-text">{{ $t("scanFolderDesc") }}</div>
+        </div>
+
+        <div class="mb-4">
+            <button class="btn btn-outline-primary mb-2" type="button" :disabled="checkingUpdates" @click="checkUpdates">
+                <font-awesome-icon icon="cloud-arrow-down" class="me-1" :class="{ 'fa-beat-fade': checkingUpdates }" /> {{ checkingUpdates ? $t("checkUpdatesRunning") : $t("checkUpdatesNow") }}
+            </button>
+            <div class="form-text">{{ $t("checkUpdatesDesc") }}</div>
+        </div>
     </div>
 </template>
 
 <script>
 
 import dayjs from "dayjs";
+import { compareVersions } from "compare-versions";
 import { timezoneList } from "../../util-frontend";
+import { ALL_ENDPOINTS } from "../../../../common/util-common";
+
+// Image checks query every registry, give them time
+const CHECK_TIMEOUT_MS = 10 * 60 * 1000;
 
 export default {
     components: {
@@ -80,6 +102,7 @@ export default {
     data() {
         return {
             timezoneList: timezoneList(),
+            checkingUpdates: false,
         };
     },
 
@@ -104,6 +127,64 @@ export default {
             localStorage.timezone = this.$root.userTimezone;
             this.saveSettings();
         },
+        /** Ask all the servers to rescan their stacks folder */
+        scanFolder() {
+            this.$root.emitAgent(ALL_ENDPOINTS, "requestStackList", (res) => {
+                this.$root.toastRes(res);
+            });
+        },
+
+        /**
+         * Force the check of the image updates of the stacks (on every online server)
+         * and of the new versions of Dockge Custom.
+         */
+        async checkUpdates() {
+            this.checkingUpdates = true;
+
+            const endpoints = Object.keys(this.$root.agentList).filter(endpoint => this.$root.agentStatusList[endpoint] === "online");
+
+            const imageChecks = endpoints.map(endpoint => new Promise((resolve) => {
+                const timer = setTimeout(() => resolve({ ok: false,
+                    msg: "checkUpdatesTimeout",
+                    msgi18n: true }), CHECK_TIMEOUT_MS);
+                this.$root.emitAgent(endpoint, "checkImageUpdates", (res) => {
+                    clearTimeout(timer);
+                    resolve(res);
+                });
+            }));
+
+            const versionCheck = new Promise((resolve) => {
+                this.$root.getSocket().emit("checkVersionNow", resolve);
+            });
+
+            const [ version, ...images ] = await Promise.all([ versionCheck, ...imageChecks ]);
+            this.checkingUpdates = false;
+
+            const failed = images.filter(res => !res.ok);
+            if (failed.length > 0) {
+                this.$root.toastRes(failed[0]);
+            } else {
+                this.$root.toastRes({ ok: true,
+                    msg: "imageUpdatesChecked",
+                    msgi18n: true });
+            }
+
+            if (!version.ok) {
+                this.$root.toastRes(version);
+            } else if (version.latestVersion && compareVersions(version.latestVersion, this.$root.info.version) >= 1) {
+                this.$root.toastRes({
+                    ok: true,
+                    msg: { key: "newVersionAvailable",
+                        values: { version: version.latestVersion } },
+                    msgi18n: true,
+                });
+            } else {
+                this.$root.toastRes({ ok: true,
+                    msg: "versionUpToDate",
+                    msgi18n: true });
+            }
+        },
+
         /** Get the base URL of the application */
         autoGetPrimaryHostname() {
             this.settings.primaryHostname = location.hostname;

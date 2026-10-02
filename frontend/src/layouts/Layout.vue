@@ -38,53 +38,11 @@
                     </router-link>
                 </li>
 
-                <li v-if="$root.loggedIn" class="nav-item">
-                    <div class="dropdown dropdown-profile-pic">
-                        <div class="nav-link d-flex flex-column flex-sm-row align-items-center" data-bs-toggle="dropdown" role="button" :title="$t('menu')">
-                            <font-awesome-icon icon="bars" />
-                            <div class="mt-2 mt-sm-0 ms-sm-2">{{ $t("menu") }}</div>
-                        </div>
-
-                        <!-- Header's Dropdown Menu -->
-                        <ul class="dropdown-menu">
-                            <!-- Username -->
-                            <li>
-                                <i18n-t v-if="$root.username != null" tag="span" keypath="signedInDisp" class="dropdown-item-text">
-                                    <strong>{{ $root.username }}</strong>
-                                </i18n-t>
-                                <span v-if="$root.username == null" class="dropdown-item-text">{{ $t("signedInDispDisabled") }}</span>
-                            </li>
-
-                            <li><hr class="dropdown-divider"></li>
-
-                            <!-- Functions -->
-
-                            <!--<li>
-                                <router-link to="/registry" class="dropdown-item" :class="{ active: $route.path.includes('settings') }">
-                                    <font-awesome-icon icon="warehouse" /> {{ $t("registry") }}
-                                </router-link>
-                            </li>-->
-
-                            <li>
-                                <button class="dropdown-item" @click="scanFolder">
-                                    <font-awesome-icon icon="arrows-rotate" /> {{ $t("scanFolder") }}
-                                </button>
-                            </li>
-
-                            <li>
-                                <router-link to="/settings" class="dropdown-item" :class="{ active: $route.path.includes('settings') }">
-                                    <font-awesome-icon icon="cog" /> {{ $t("Settings") }}
-                                </router-link>
-                            </li>
-
-                            <li>
-                                <button class="dropdown-item" @click="$root.logout">
-                                    <font-awesome-icon icon="sign-out-alt" />
-                                    {{ $t("Logout") }}
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
+                <li v-if="$root.loggedIn" class="nav-item" data-toggle="tooltip" :title="$t('Settings')">
+                    <router-link to="/settings" class="nav-link d-flex flex-column flex-sm-row align-items-center">
+                        <font-awesome-icon icon="cog" />
+                        <div class="mt-2 mt-sm-0 ms-sm-2">{{ $t("Settings") }}</div>
+                    </router-link>
                 </li>
             </ul>
         </header>
@@ -103,7 +61,6 @@
 <script>
 import Login from "../components/Login.vue";
 import { compareVersions } from "compare-versions";
-import { ALL_ENDPOINTS } from "../../../common/util-common";
 
 export default {
 
@@ -150,11 +107,7 @@ export default {
     },
 
     methods: {
-        scanFolder() {
-            this.$root.emitAgent(ALL_ENDPOINTS, "requestStackList", (res) => {
-                this.$root.toastRes(res);
-            });
-        },
+
     },
 
 };
@@ -223,58 +176,6 @@ main {
     position: fixed;
     width: 100%;
     z-index: 99999;
-}
-
-// Profile Pic Button with Dropdown
-.dropdown-profile-pic {
-    user-select: none;
-
-    .nav-link {
-        cursor: pointer;
-    }
-
-    .dropdown-menu {
-        transition: all 0.2s;
-        padding-left: 0;
-        padding-bottom: 0;
-        margin-top: 8px !important;
-        border-radius: 16px;
-        overflow: hidden;
-
-        .dropdown-divider {
-            margin: 0;
-            border-top: 1px solid rgba(0, 0, 0, 0.4);
-            background-color: transparent;
-        }
-
-        .dropdown-item-text {
-            font-size: 14px;
-            padding-bottom: 0.7rem;
-        }
-
-        .dropdown-item {
-            padding: 0.7rem 1rem;
-        }
-
-        .dark & {
-            background-color: $dark-bg;
-            color: $dark-font-color;
-            border-color: $dark-border-color;
-
-            .dropdown-item {
-                color: $dark-font-color;
-
-                &.active {
-                    color: $dark-font-color2;
-                    background-color: $highlight !important;
-                }
-
-                &:hover {
-                    background-color: $dark-bg2;
-                }
-            }
-        }
-    }
 }
 
 .dark {

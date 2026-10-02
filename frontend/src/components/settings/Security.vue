@@ -9,7 +9,7 @@
                 </p>
 
                 <h5 class="my-4 settings-subheading">{{ $t("Change Password") }}</h5>
-                <form class="mb-3" @submit.prevent="savePassword">
+                <form class="mb-3" autocomplete="off" @submit.prevent="savePassword">
                     <div class="mb-3">
                         <label for="current-password" class="form-label">
                             {{ $t("Current Password") }}
@@ -19,7 +19,9 @@
                             v-model="password.currentPassword"
                             type="password"
                             class="form-control"
-                            autocomplete="current-password"
+                            autocomplete="new-password"
+                            data-lpignore="true"
+                            data-1p-ignore
                             required
                         />
                     </div>
@@ -117,6 +119,9 @@
                     v-model="password.currentPassword"
                     type="password"
                     class="form-control"
+                    autocomplete="new-password"
+                    data-lpignore="true"
+                    data-1p-ignore
                     required
                 />
             </div>

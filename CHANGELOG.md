@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.4.0
+
+### Nouveautés
+- **Paramètres > Général** : nouvelle section « Actions » avec
+  - « Analyser le dossier des piles » (déplacé depuis l'ancien menu) ;
+  - « Vérifier les mises à jour » : force la recherche de nouvelles images pour les stacks de tous les serveurs en ligne et celle d'une nouvelle version de Dockge Custom, sans attendre les contrôles automatiques.
+
+### Améliorations
+- En-tête : le bouton « Menu » est remplacé par un bouton **Paramètres** qui mène directement aux paramètres. La déconnexion reste disponible dans Paramètres > Sécurité.
+- Paramètres > Sécurité : le navigateur ne pré-remplit plus automatiquement les champs de mot de passe avec l'utilisateur connecté.
+- Le contrôle périodique des mises à jour d'images (toutes les 6 heures) rafraîchit aussi l'état des stacks, et deux contrôles ne peuvent plus s'exécuter en même temps.
+
 ## 2.3.0
 
 ### Améliorations

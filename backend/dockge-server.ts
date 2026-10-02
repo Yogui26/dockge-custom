@@ -604,14 +604,39 @@ export class DockgeServer {
         return jwtSecretBean;
     }
 
-    async updateAvailableStackImageUpdates(updatePeriod: number) {
-        const stackList = await Stack.getStackList(this, true);
-        for (const stack of stackList.values()) {
-            if (stack.isManagedByDockge) {
-                await stack.updateImageInfos();
-            }
+    private imageUpdateCheck? : Promise<void>;
+
+    /**
+     * Check the registries for new images of all the stacks and refresh their state.
+     * If a check is already running, wait for it instead of starting another one.
+     */
+    checkImageUpdatesNow() : Promise<void> {
+        if (!this.imageUpdateCheck) {
+            this.imageUpdateCheck = (async () => {
+                const stackList = await Stack.getStackList(this, true);
+                for (const stack of stackList.values()) {
+                    if (stack.isManagedByDockge) {
+                        // Services must be known before their images can be checked
+                        await stack.updateData();
+                        await stack.updateImageInfos();
+                        await stack.updateData();
+                    }
+                }
+                log.info("checkImageUpdates", "Check for image updates finished.");
+                this.sendStackList(true);
+            })().finally(() => {
+                this.imageUpdateCheck = undefined;
+            });
         }
-        log.info("checkImageUpdates", "Check for image updates finished.");
+        return this.imageUpdateCheck;
+    }
+
+    async updateAvailableStackImageUpdates(updatePeriod: number) {
+        try {
+            await this.checkImageUpdatesNow();
+        } catch (e) {
+            log.error("checkImageUpdates", e);
+        }
 
         setTimeout(
             () => {

@@ -18,6 +18,7 @@ import {
 import { passwordStrength } from "check-password-strength";
 import jwt from "jsonwebtoken";
 import { Settings } from "../settings";
+import checkVersion from "../check-version";
 
 export class MainSocketHandler extends SocketHandler {
     create(socket : DockgeSocket, server : DockgeServer) {
@@ -287,6 +288,25 @@ export class MainSocketHandler extends SocketHandler {
                         msg: e.message,
                     });
                 }
+            }
+        });
+
+        // Look for a new version of Dockge Custom now
+        socket.on("checkVersionNow", async (callback) => {
+            try {
+                checkLogin(socket);
+                const latestVersion = await checkVersion.check(true);
+                await server.sendInfo(socket);
+                callback({
+                    ok: true,
+                    latestVersion,
+                });
+            } catch (e) {
+                callback({
+                    ok: false,
+                    msg: "versionCheckFailed",
+                    msgi18n: true,
+                });
             }
         });
 
