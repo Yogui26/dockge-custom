@@ -75,6 +75,15 @@ export function buildSelfUpdatePlan(info: OwnContainerInfo): SelfUpdatePlan {
 }
 
 /**
+ * Does Dockge run inside a Docker container?
+ * DOCKGE_IS_CONTAINER is not set by the image, so the marker file created by Docker is checked too.
+ * @returns true if running in a container
+ */
+export function isRunningInContainer(): boolean {
+    return process.env.DOCKGE_IS_CONTAINER === "1" || fs.existsSync("/.dockerenv");
+}
+
+/**
  * Find the id of the container Dockge runs in.
  * @returns The container id or name
  */
@@ -99,7 +108,7 @@ function getOwnContainerId(): string {
  * @throws Error if Dockge does not run in a container started by docker compose
  */
 export async function startSelfUpdate(): Promise<void> {
-    if (process.env.DOCKGE_IS_CONTAINER !== "1") {
+    if (!isRunningInContainer()) {
         throw new Error("Dockge is not running in a container, update it manually.");
     }
 

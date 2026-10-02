@@ -16,6 +16,7 @@ import { MainSocketHandler } from "./socket-handlers/main-socket-handler";
 import { SocketHandler } from "./socket-handler";
 import { Settings } from "./settings";
 import checkVersion from "./check-version";
+import { isRunningInContainer } from "./self-update";
 import dayjs from "dayjs";
 import { R } from "redbean-node";
 import { genSecret, isDev, LooseObject } from "../common/util-common";
@@ -751,7 +752,7 @@ export class DockgeServer {
                     ok: true,
                     version: packageJSON.version,
                     latestVersion: checkVersion.latestVersion,
-                    canUpdate: process.env.DOCKGE_IS_CONTAINER === "1",
+                    canUpdate: isRunningInContainer(),
                 });
             }
         } catch (e) {

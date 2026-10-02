@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.2
+
+### Corrections
+- La mise à jour d'un agent depuis la flèche violette échouait avec « Dockge is not running in a container » : l'image ne définit pas la variable `DOCKGE_IS_CONTAINER` que le contrôle attendait. Dockge détecte maintenant qu'il tourne dans un conteneur grâce au fichier `/.dockerenv` créé par Docker.
+
 ## 2.6.1
 
 ### Corrections
