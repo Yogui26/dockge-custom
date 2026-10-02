@@ -25,23 +25,23 @@
 
             <ul class="d-flex flex-nowrap ms-auto nav nav-pills">
                 <li v-if="$root.loggedIn" class="nav-item me-2">
-                    <router-link to="/" class="nav-link d-flex flex-column flex-sm-row align-items-center" data-toggle="tooltip" :title="$t('home')">
+                    <router-link to="/" class="nav-link d-flex align-items-center" data-toggle="tooltip" :title="$t('home')" :aria-label="$t('home')">
                         <font-awesome-icon icon="home" />
-                        <div class="mt-2 mt-sm-0 ms-sm-2">{{ $t("home") }}</div>
+                        <div class="d-none d-md-block ms-md-2">{{ $t("home") }}</div>
                     </router-link>
                 </li>
 
                 <li v-if="$root.loggedIn && $root.isMobile" class="nav-item me-2" data-toggle="tooltip" :title="$tc('stack', 2)">
-                    <router-link to="/stacks" class="nav-link d-flex flex-column flex-sm-row align-items-center">
+                    <router-link to="/stacks" class="nav-link d-flex align-items-center" :aria-label="$tc('stack', 2)">
                         <font-awesome-icon icon="list" />
-                        <div class="mt-2 mt-sm-0 ms-sm-2">{{ $tc("stack", 2) }}</div>
+                        <div class="d-none d-md-block ms-md-2">{{ $tc("stack", 2) }}</div>
                     </router-link>
                 </li>
 
                 <li v-if="$root.loggedIn" class="nav-item" data-toggle="tooltip" :title="$t('Settings')">
-                    <router-link to="/settings" class="nav-link d-flex flex-column flex-sm-row align-items-center">
+                    <router-link to="/settings" class="nav-link d-flex align-items-center" :aria-label="$t('Settings')">
                         <font-awesome-icon icon="cog" />
-                        <div class="mt-2 mt-sm-0 ms-sm-2">{{ $t("Settings") }}</div>
+                        <div class="d-none d-md-block ms-md-2">{{ $t("Settings") }}</div>
                     </router-link>
                 </li>
             </ul>
@@ -60,6 +60,10 @@
 
 <script>
 import Login from "../components/Login.vue";
+
+// Screens reachable with a horizontal swipe on mobile, in the order of the header buttons
+const SWIPE_SCREENS = [ "/", "/stacks", "/settings" ];
+const SWIPE_MIN_DISTANCE = 70;
 import { compareVersions } from "compare-versions";
 
 export default {
@@ -70,7 +74,7 @@ export default {
 
     data() {
         return {
-
+            swipeStart: null,
         };
     },
 
@@ -99,15 +103,104 @@ export default {
     },
 
     mounted() {
-
+        document.addEventListener("touchstart", this.onTouchStart, { passive: true });
+        document.addEventListener("touchend", this.onTouchEnd, { passive: true });
     },
 
     beforeUnmount() {
-
+        document.removeEventListener("touchstart", this.onTouchStart);
+        document.removeEventListener("touchend", this.onTouchEnd);
     },
 
     methods: {
+        /**
+         * Index of the current screen among the screens reachable with a swipe.
+         * Pages with unsaved work (compose editor...) are not part of it, so a swipe there does nothing.
+         * @returns {number} Index in SWIPE_SCREENS, -1 if the current page is not a swipe screen
+         */
+        swipeScreenIndex() {
+            const path = this.$route.path;
+            if (path === "/") {
+                return 0;
+            }
+            if (path === "/stacks") {
+                return 1;
+            }
+            if (path === "/settings" || path.startsWith("/settings/")) {
+                return 2;
+            }
+            return -1;
+        },
 
+        /**
+         * Is the touch started on something that already uses horizontal gestures?
+         * @param {Element} element Element where the touch started
+         * @returns {boolean} true if a swipe must be ignored
+         */
+        isSwipeBlocked(element) {
+            if (!(element instanceof Element)) {
+                return true;
+            }
+
+            // Text fields, terminals, editors, sliders, modals and dropdowns
+            if (element.closest("input, textarea, select, .xterm, .cm-editor, .modal, .dropdown-menu, [data-no-swipe]")) {
+                return true;
+            }
+
+            // Anything scrollable horizontally (wide tables...)
+            for (let el = element; el && el !== document.body; el = el.parentElement) {
+                const overflowX = getComputedStyle(el).overflowX;
+                if ((overflowX === "auto" || overflowX === "scroll") && el.scrollWidth > el.clientWidth) {
+                    return true;
+                }
+            }
+
+            return false;
+        },
+
+        onTouchStart(e) {
+            if (e.touches.length !== 1 || !this.$root.isMobile || !this.$root.loggedIn) {
+                this.swipeStart = null;
+                return;
+            }
+
+            const touch = e.touches[0];
+            this.swipeStart = {
+                x: touch.clientX,
+                y: touch.clientY,
+                time: Date.now(),
+                blocked: this.isSwipeBlocked(e.target),
+            };
+        },
+
+        onTouchEnd(e) {
+            const start = this.swipeStart;
+            this.swipeStart = null;
+
+            if (!start || start.blocked || e.changedTouches.length !== 1) {
+                return;
+            }
+
+            const touch = e.changedTouches[0];
+            const dx = touch.clientX - start.x;
+            const dy = touch.clientY - start.y;
+
+            // A quick, mostly horizontal and long enough move
+            if (Date.now() - start.time > 600 || Math.abs(dx) < SWIPE_MIN_DISTANCE || Math.abs(dy) > Math.abs(dx) * 0.5) {
+                return;
+            }
+
+            const index = this.swipeScreenIndex();
+            if (index < 0) {
+                return;
+            }
+
+            // Swipe to the left: next screen, to the right: previous screen
+            const target = SWIPE_SCREENS[index + (dx < 0 ? 1 : -1)];
+            if (target) {
+                this.$router.push(target);
+            }
+        },
     },
 
 };

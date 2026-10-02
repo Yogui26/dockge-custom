@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.5.0
+
+### Nouveautés
+- **Mobile : navigation par glissement horizontal.** Glisser vers la gauche ou la droite fait passer d'un écran à l'autre dans l'ordre des boutons de l'en-tête : Accueil, Stacks, Paramètres. Le geste est ignoré sur les autres pages (éditeur compose, logs...), dans les champs de saisie, les terminaux, les fenêtres et les zones qui défilent horizontalement, pour ne jamais gêner leur usage.
+
+### Corrections
+- Mobile : l'en-tête n'affiche plus que des icônes (Accueil, Stacks, Paramètres) pour supprimer le défilement horizontal causé par les libellés trop longs dans certaines langues. Les libellés restent affichés sur ordinateur et tablette, avec une infobulle sur mobile.
+
 ## 2.4.0
 
 ### Nouveautés
