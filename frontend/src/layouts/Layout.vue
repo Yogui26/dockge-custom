@@ -17,10 +17,6 @@
                     <!--object class="bi me-2" width="40" height="40" data="/icon.svg" /-->
                     <span class="d-none d-md-inline fs-4 title">Dockge</span>
                 </router-link>
-
-                <a v-if="hasNewVersion" target="_blank" href="https://github.com/Yogui26/dockge-custom/releases" class="ms-2 me-3">
-                    <font-awesome-icon icon="arrow-up" class="notification-icon" />
-                </a>
             </div>
 
             <ul class="d-flex flex-nowrap ms-auto nav nav-pills">
@@ -64,7 +60,6 @@ import Login from "../components/Login.vue";
 // Screens reachable with a horizontal swipe on mobile, in the order of the header buttons
 const SWIPE_SCREENS = [ "/", "/stacks", "/settings" ];
 const SWIPE_MIN_DISTANCE = 70;
-import { compareVersions } from "compare-versions";
 
 export default {
 
@@ -86,14 +81,6 @@ export default {
             classes[this.$root.theme] = true;
             classes["mobile"] = this.$root.isMobile;
             return classes;
-        },
-
-        hasNewVersion() {
-            if (this.$root.info.latestVersion && this.$root.info.version) {
-                return compareVersions(this.$root.info.latestVersion, this.$root.info.version) >= 1;
-            } else {
-                return false;
-            }
         },
 
     },

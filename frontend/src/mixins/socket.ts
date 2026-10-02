@@ -4,7 +4,7 @@ import { defineComponent } from "vue";
 import jwtDecode from "jwt-decode";
 import { Terminal } from "@xterm/xterm";
 import { AgentSocket } from "../../../common/agent-socket";
-import { AgentData, DiskUsageData, SimpleStackData } from "../../../common/types";
+import { AgentData, DiskUsageData, SimpleStackData, VersionInfoData } from "../../../common/types";
 import { StackFilter, StackStatusInfo } from "../../../common/util-common";
 
 let socket : Socket;
@@ -52,6 +52,7 @@ export default defineComponent({
 
             // Disk usage of each agent (key: endpoint), only known for agents running a version that reports it
             agentDiskUsage: {} as Record<string, DiskUsageData>,
+            agentVersionInfo: {} as Record<string, VersionInfoData>,
         };
     },
     computed: {
@@ -294,6 +295,16 @@ export default defineComponent({
                         }
                         this.allAgentStackList[res.endpoint].stackList = res.stackList;
                     }
+                }
+            });
+
+            agentSocket.on("versionInfo", (res) => {
+                if (res.ok) {
+                    this.agentVersionInfo[res.endpoint] = {
+                        version: res.version,
+                        latestVersion: res.latestVersion,
+                        canUpdate: res.canUpdate,
+                    };
                 }
             });
 

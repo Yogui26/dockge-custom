@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.6.0
+
+### Nouveautés
+- **Mise à jour de Dockge Custom par agent.** Chaque serveur (maître et agents) cherche lui-même la dernière version publiée. Quand une version plus récente existe, une flèche violette apparaît dans la carte de l'agent sur la page d'accueil, alignée avec les icônes Modifier, Log et Supprimer. Un clic propose de mettre l'agent à jour : un conteneur temporaire télécharge la nouvelle image et recrée Dockge, qui redémarre en quelques secondes. Cela suppose que Dockge ait été lancé avec docker compose et qu'il ait accès au socket Docker.
+- **Paramètres > Général > Vérifier les mises à jour** interroge aussi la dernière version de chaque agent.
+
+### Changements
+- La flèche de mise à jour à côté du logo et du nom « Dockge » dans l'en-tête (qui renvoyait vers GitHub) est supprimée.
+- Les agents en version inférieure à 2.6.0 n'envoient pas leur version : ils doivent être mis à jour une première fois à la main pour bénéficier de la flèche.
+
 ## 2.5.0
 
 ### Nouveautés

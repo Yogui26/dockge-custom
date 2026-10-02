@@ -90,6 +90,12 @@ class CheckVersion {
             return this.latestVersion;
         }
 
+        // For debug: pretend a far newer version exists, without asking GitHub
+        if (process.env.TEST_CHECK_VERSION === "1") {
+            this.latestVersion = "1000.0.0";
+            return this.latestVersion;
+        }
+
         log.debug("update-checker", "Retrieving latest versions");
 
         try {
@@ -106,11 +112,6 @@ class CheckVersion {
             if (!latest) {
                 const tags = (await fetchList(TAGS_URL)) as { name?: unknown }[];
                 latest = pickLatestVersion(tags.map(t => ({ tag: t.name })), checkBeta);
-            }
-
-            // For debug
-            if (process.env.TEST_CHECK_VERSION === "1") {
-                latest = "1000.0.0";
             }
 
             if (latest) {

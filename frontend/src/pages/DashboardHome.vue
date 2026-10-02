@@ -42,6 +42,9 @@
 
                                     <!-- Remove Button -->
                                     <font-awesome-icon v-if="endpoint !== ''" class="ms-3 action-icon" icon="trash" @click="showRemoveAgentDialog[agent.endpoint] = !showRemoveAgentDialog[agent.endpoint]" />
+
+                                    <!-- A new version of Dockge Custom is available for this agent -->
+                                    <font-awesome-icon v-if="agentStatusList[endpoint] === 'online' && agentUpdateList[endpoint]" class="ms-3 action-icon update-available-icon" icon="arrow-up" data-toggle="tooltip" :title="$t('tooltipAgentUpdate', agentUpdateList[endpoint])" role="button" @click="showUpdateAgentDialog[agent.endpoint] = true" />
                                 </div>
 
                                 <router-link v-if="agentStatusList[endpoint] === 'online'" class="btn btn-sm btn-normal" data-toggle="tooltip" :title="$t('tooltipAgentMaintenance')" :aria-label="$t('maintenance')" :to="getAgentRouteLink(agent)">
@@ -86,6 +89,10 @@
                             </BModal>
 
                             <!-- Remove Agent Dialog -->
+                            <BModal v-if="agentUpdateList[endpoint]" v-model="showUpdateAgentDialog[agent.endpoint]" :title="getAgentName(agent)" :okTitle="$t('updateAgent')" okVariant="primary" @ok="updateAgent(agent)">
+                                <p>{{ $t("updateAgentMsg", agentUpdateList[endpoint]) }}</p>
+                                <p class="mb-0 text-muted">{{ $t("updateAgentInfo") }}</p>
+                            </BModal>
                             <BModal v-model="showRemoveAgentDialog[agent.endpoint]" :title="getAgentName(agent)" :okTitle="$t('removeAgent')" okVariant="danger" @ok="removeAgent(agent)">
                                 {{ $t("removeAgentMsg") }}
                             </BModal>
@@ -137,7 +144,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { AgentData, DiskUsageData, SimpleStackData } from "../../../common/types";
+import { compareVersions } from "compare-versions";
+import { AgentData, DiskUsageData, SimpleStackData, VersionInfoData } from "../../../common/types";
 import { StackFilter, StackStatusInfo } from "../../../common/util-common";
 import { formatBytes } from "../util-frontend";
 
@@ -161,6 +169,7 @@ export default defineComponent({
             dockerRunCommand: "",
             showAgentForm: false,
             showRemoveAgentDialog: {},
+            showUpdateAgentDialog: {},
             showEditAgentNameDialog: {},
             editAgentNewName: {},
             connectingAgent: false,
@@ -174,6 +183,19 @@ export default defineComponent({
         },
         agentStatusList(): Record<string, string> {
             return this.$root.agentStatusList;
+        },
+        /**
+         * Agents for which a newer version than the running one is known
+         */
+        agentUpdateList(): Record<string, { version: string, latestVersion: string }> {
+            const list: Record<string, { version: string, latestVersion: string }> = {};
+            for (const [ endpoint, info ] of Object.entries(this.$root.agentVersionInfo as Record<string, VersionInfoData>)) {
+                if (info.version && info.latestVersion && compareVersions(info.latestVersion, info.version) >= 1) {
+                    list[endpoint] = { version: info.version,
+                        latestVersion: info.latestVersion };
+                }
+            }
+            return list;
         },
         diskUsageList(): Record<string, DiskUsageData> {
             return this.$root.agentDiskUsage;
@@ -321,6 +343,15 @@ export default defineComponent({
                 }
 
                 this.connectingAgent = false;
+            });
+        },
+
+        /**
+         * Ask the agent to update itself: it downloads the new image and restarts.
+         */
+        updateAgent(agent: AgentData) {
+            this.$root.emitAgent(agent.endpoint, "updateAgent", (res) => {
+                this.$root.toastRes(res);
             });
         },
 
@@ -484,6 +515,11 @@ table {
 .action-icon {
     cursor: pointer;
     color: rgba(255, 255, 255, 0.3);
+}
+
+// Same purple as the other update indicators
+.action-icon.update-available-icon {
+    color: $info;
 }
 
 .agent {

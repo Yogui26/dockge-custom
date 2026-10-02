@@ -2,6 +2,8 @@ import { AgentSocketHandler } from "../agent-socket-handler";
 import { DockgeServer } from "../dockge-server";
 import { callbackError, callbackResult, checkLogin, DockgeSocket, ValidationError } from "../util-server";
 import { Stack } from "../stack";
+import checkVersion from "../check-version";
+import { startSelfUpdate } from "../self-update";
 import { AgentSocket } from "../../common/agent-socket";
 
 export class DockerSocketHandler extends AgentSocketHandler {
@@ -113,6 +115,40 @@ export class DockerSocketHandler extends AgentSocketHandler {
                 callbackResult({
                     ok: true,
                     msg: "imageUpdatesChecked",
+                    msgi18n: true,
+                }, callback);
+            } catch (e) {
+                callbackError(e, callback);
+            }
+        });
+
+        // Look for a new version of Dockge Custom now (instead of waiting for the next periodic check)
+        agentSocket.on("checkVersionNow", async (callback) => {
+            try {
+                checkLogin(socket);
+                const latestVersion = await checkVersion.check(true);
+                server.sendVersionInfo();
+                callbackResult({
+                    ok: true,
+                    latestVersion,
+                }, callback);
+            } catch (e) {
+                callbackResult({
+                    ok: false,
+                    msg: "versionCheckFailed",
+                    msgi18n: true,
+                }, callback);
+            }
+        });
+
+        // Update this instance of Dockge (pull the new image and restart)
+        agentSocket.on("updateAgent", async (callback) => {
+            try {
+                checkLogin(socket);
+                await startSelfUpdate();
+                callbackResult({
+                    ok: true,
+                    msg: "agentUpdateStarted",
                     msgi18n: true,
                 }, callback);
             } catch (e) {

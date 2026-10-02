@@ -344,6 +344,7 @@ export class DockgeServer {
         }
 
         this.sendDiskUsage();
+        this.sendVersionInfo();
 
         socket.instanceManager.sendAgentList();
 
@@ -408,6 +409,7 @@ export class DockgeServer {
                 //log.debug("server", "Cron job running");
                 this.sendStackList(true);
                 this.sendDiskUsage();
+                this.sendVersionInfo();
             });
 
             checkVersion.startInterval();
@@ -725,6 +727,31 @@ export class DockgeServer {
                 dockgeSocket.emitAgent("diskUsage", {
                     ok: true,
                     ...diskUsage,
+                });
+            }
+        } catch (e) {
+            log.error("server", e);
+        }
+    }
+
+    /**
+     * Send the version of this instance and the latest known one to all logged in sockets.
+     * The event name is "versionInfo", the endpoint is added by emitAgent().
+     */
+    sendVersionInfo() {
+        try {
+            for (let socket of this.io.sockets.sockets.values()) {
+                let dockgeSocket = socket as DockgeSocket;
+
+                if (!dockgeSocket.userID) {
+                    continue;
+                }
+
+                dockgeSocket.emitAgent("versionInfo", {
+                    ok: true,
+                    version: packageJSON.version,
+                    latestVersion: checkVersion.latestVersion,
+                    canUpdate: process.env.DOCKGE_IS_CONTAINER === "1",
                 });
             }
         } catch (e) {

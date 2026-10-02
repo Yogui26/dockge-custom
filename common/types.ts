@@ -54,6 +54,16 @@ export type DiskUsageData = {
     free: number,
 }
 
+/**
+ * Version of an instance and the latest version it knows about
+ */
+export type VersionInfoData = {
+    version: string,
+    latestVersion?: string,
+    // Only containers started by docker compose can update themselves
+    canUpdate: boolean,
+}
+
 export enum DockerArtefactAction {
     Prune = "prune",
     PruneAll = "pruneAll",

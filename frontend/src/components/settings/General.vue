@@ -93,6 +93,7 @@ import { ALL_ENDPOINTS } from "../../../../common/util-common";
 
 // Image checks query every registry, give them time
 const CHECK_TIMEOUT_MS = 10 * 60 * 1000;
+const VERSION_CHECK_TIMEOUT_MS = 30 * 1000;
 
 export default {
     components: {
@@ -153,11 +154,20 @@ export default {
                 });
             }));
 
-            const versionCheck = new Promise((resolve) => {
-                this.$root.getSocket().emit("checkVersionNow", resolve);
-            });
+            // Every server looks for its own new version
+            // (an agent older than this feature never answers, do not wait for it)
+            const versionChecks = endpoints.map(endpoint => new Promise((resolve) => {
+                const timer = setTimeout(() => resolve({ ok: true }), VERSION_CHECK_TIMEOUT_MS);
+                this.$root.emitAgent(endpoint, "checkVersionNow", (res) => {
+                    clearTimeout(timer);
+                    resolve(res);
+                });
+            }));
 
-            const [ version, ...images ] = await Promise.all([ versionCheck, ...imageChecks ]);
+            const [ versions, images ] = await Promise.all([
+                Promise.all(versionChecks),
+                Promise.all(imageChecks),
+            ]);
             this.checkingUpdates = false;
 
             const failed = images.filter(res => !res.ok);
@@ -169,19 +179,21 @@ export default {
                     msgi18n: true });
             }
 
-            if (!version.ok) {
-                this.$root.toastRes(version);
-            } else if (version.latestVersion && compareVersions(version.latestVersion, this.$root.info.version) >= 1) {
+            const failedVersion = versions.find(res => !res.ok);
+            if (failedVersion) {
+                this.$root.toastRes(failedVersion);
+            } else {
+                const outdated = endpoints.filter((endpoint, i) => {
+                    const info = this.$root.agentVersionInfo[endpoint];
+                    const latest = versions[i].latestVersion;
+                    return info?.version && latest && compareVersions(latest, info.version) >= 1;
+                });
                 this.$root.toastRes({
                     ok: true,
-                    msg: { key: "newVersionAvailable",
-                        values: { version: version.latestVersion } },
+                    msg: outdated.length > 0 ? { key: "agentsToUpdate",
+                        values: { count: outdated.length } } : "versionUpToDate",
                     msgi18n: true,
                 });
-            } else {
-                this.$root.toastRes({ ok: true,
-                    msg: "versionUpToDate",
-                    msgi18n: true });
             }
         },
 
