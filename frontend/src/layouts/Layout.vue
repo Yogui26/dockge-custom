@@ -40,9 +40,9 @@
 
                 <li v-if="$root.loggedIn" class="nav-item">
                     <div class="dropdown dropdown-profile-pic">
-                        <div class="nav-link" data-bs-toggle="dropdown">
-                            <div class="profile-pic d-none d-sm-flex">{{ $root.usernameFirstChar }}</div>
-                            <font-awesome-icon icon="ellipsis-v" />
+                        <div class="nav-link d-flex flex-column flex-sm-row align-items-center" data-bs-toggle="dropdown" role="button" :title="$t('menu')">
+                            <font-awesome-icon icon="bars" />
+                            <div class="mt-2 mt-sm-0 ms-sm-2">{{ $t("menu") }}</div>
                         </div>
 
                         <!-- Header's Dropdown Menu -->
@@ -231,10 +231,6 @@ main {
 
     .nav-link {
         cursor: pointer;
-        display: flex;
-        gap: 6px;
-        align-items: center;
-        padding: 0.5rem 0.8rem;
     }
 
     .dropdown-menu {
@@ -278,20 +274,6 @@ main {
                 }
             }
         }
-    }
-
-    .profile-pic {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        background-color: $primary;
-        width: 24px;
-        height: 24px;
-        margin-right: 5px;
-        border-radius: 50rem;
-        font-weight: bold;
-        font-size: 10px;
     }
 }
 
