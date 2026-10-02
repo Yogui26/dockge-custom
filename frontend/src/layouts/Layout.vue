@@ -38,13 +38,6 @@
                     </router-link>
                 </li>
 
-                <li v-if="$root.loggedIn" class="nav-item me-2" data-toggle="tooltip" :title="$t('console')">
-                    <router-link to="/console" class="nav-link d-flex flex-column flex-sm-row align-items-center">
-                        <font-awesome-icon icon="terminal" />
-                        <div class="mt-2 mt-sm-0 ms-sm-2">{{ $t("console") }}</div>
-                    </router-link>
-                </li>
-
                 <li v-if="$root.loggedIn" class="nav-item">
                     <div class="dropdown dropdown-profile-pic">
                         <div class="nav-link" data-bs-toggle="dropdown">
