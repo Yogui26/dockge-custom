@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.3
+
+### Améliorations
+- Page d'accueil, carte des agents : les icônes (Modifier, Log, Supprimer, Mise à jour) se placent à droite du nom, au niveau de sa première ligne, et le bouton Maintenance reste à droite, centré verticalement. Les cartes sont moins hautes sur mobile.
+- Mobile : espacements resserrés et nom légèrement plus petit pour éviter de couper les mots dans les noms d'agents longs.
+
 ## 2.6.2
 
 ### Corrections

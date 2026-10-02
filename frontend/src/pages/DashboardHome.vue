@@ -34,17 +34,19 @@
                                 <div class="agent-title">
                                     <h4>{{ getAgentName(agent) }}</h4>
 
-                                    <!-- Edit Name  -->
-                                    <font-awesome-icon class="action-icon" icon="pen-to-square" @click="editAgentName(agent)" />
+                                    <div class="agent-actions h4">
+                                        <!-- Edit Name  -->
+                                        <font-awesome-icon class="action-icon" icon="pen-to-square" @click="editAgentName(agent)" />
 
-                                    <!-- Live log of the agent -->
-                                    <font-awesome-icon v-if="agentStatusList[endpoint] === 'online'" class="action-icon" icon="file-lines" data-toggle="tooltip" :title="$t('tooltipAgentLog')" :aria-label="$t('serverLog')" role="link" @click="$router.push(getAgentLogRouteLink(agent))" />
+                                        <!-- Live log of the agent -->
+                                        <font-awesome-icon v-if="agentStatusList[endpoint] === 'online'" class="action-icon" icon="file-lines" data-toggle="tooltip" :title="$t('tooltipAgentLog')" :aria-label="$t('serverLog')" role="link" @click="$router.push(getAgentLogRouteLink(agent))" />
 
-                                    <!-- Remove Button -->
-                                    <font-awesome-icon v-if="endpoint !== ''" class="action-icon" icon="trash" @click="showRemoveAgentDialog[agent.endpoint] = !showRemoveAgentDialog[agent.endpoint]" />
+                                        <!-- Remove Button -->
+                                        <font-awesome-icon v-if="endpoint !== ''" class="action-icon" icon="trash" @click="showRemoveAgentDialog[agent.endpoint] = !showRemoveAgentDialog[agent.endpoint]" />
 
-                                    <!-- A new version of Dockge Custom is available for this agent -->
-                                    <font-awesome-icon v-if="agentStatusList[endpoint] === 'online' && agentUpdateList[endpoint]" class="action-icon update-available-icon" icon="arrow-up" data-toggle="tooltip" :title="$t('tooltipAgentUpdate', agentUpdateList[endpoint])" role="button" @click="showUpdateAgentDialog[agent.endpoint] = true" />
+                                        <!-- A new version of Dockge Custom is available for this agent -->
+                                        <font-awesome-icon v-if="agentStatusList[endpoint] === 'online' && agentUpdateList[endpoint]" class="action-icon update-available-icon" icon="arrow-up" data-toggle="tooltip" :title="$t('tooltipAgentUpdate', agentUpdateList[endpoint])" role="button" @click="showUpdateAgentDialog[agent.endpoint] = true" />
+                                    </div>
                                 </div>
 
                                 <router-link v-if="agentStatusList[endpoint] === 'online'" class="btn btn-sm btn-normal agent-maintenance" data-toggle="tooltip" :title="$t('tooltipAgentMaintenance')" :aria-label="$t('maintenance')" :to="getAgentRouteLink(agent)">
@@ -528,33 +530,59 @@ table {
     }
 }
 
-// Name and icons on the left, maintenance button on the right.
-// A long name wraps, the icons move under it and the button never leaves the card.
+// Name and icons on the left (the icons stay level with the first line of the name),
+// maintenance button on the right. A long name wraps and the button never leaves the card.
 .agent-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .agent-title {
     display: flex;
     flex: 1 1 auto;
-    flex-wrap: wrap;
-    align-items: baseline;
+    align-items: flex-start;
     column-gap: 1rem;
-    row-gap: 0.25rem;
     min-width: 0;
-    margin-bottom: 0.25rem;
 
     h4 {
+        flex: 0 1 auto;
         min-width: 0;
-        margin-right: 0.5rem;
-        overflow-wrap: anywhere;
+        margin: 0;
+        overflow-wrap: break-word;
     }
+}
+
+// Same font size and line height as the name, so that the icons are centered on its first line
+.agent-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    column-gap: 1rem;
+    margin: 0;
+    // One line of the name (font size and line height of the h4): the icons are centered on it
+    min-height: 1.2em;
 
     .action-icon {
-        flex-shrink: 0;
+        font-size: 1rem;
+    }
+}
+
+// Narrow screens: tighter spacing and a slightly smaller name so that the words are not cut
+@media (max-width: 575.98px) {
+    .agent-title {
+        column-gap: 0.6rem;
+
+        h4 {
+            font-size: 1.2rem;
+        }
+    }
+
+    .agent-actions {
+        column-gap: 0.6rem;
+        font-size: 1.2rem;
     }
 }
 
