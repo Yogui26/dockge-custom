@@ -17,7 +17,7 @@
                     <a v-if="searchText != ''" class="search-icon" style="cursor: pointer" @click="clearSearchText">
                         <font-awesome-icon icon="times" />
                     </a>
-                    <input v-model="searchText" class="form-control w-100" autocomplete="off" />
+                    <input v-model="searchText" type="search" name="stack-search" class="form-control w-100 stack-search" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore />
                 </div>
 
                 <!-- Dropdown for filter -->
@@ -440,6 +440,13 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 @import "../styles/vars.scss";
+
+// The clear button is already provided by the component, hide the native one of type="search"
+.stack-search::-webkit-search-cancel-button,
+.stack-search::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+}
 
 .sticky-shadow-box {
     height: calc(100vh - 150px);

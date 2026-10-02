@@ -9,7 +9,7 @@
 
 ### Améliorations
 - En-tête : le bouton « Menu » est remplacé par un bouton **Paramètres** qui mène directement aux paramètres. La déconnexion reste disponible dans Paramètres > Sécurité.
-- Paramètres > Sécurité : le navigateur ne pré-remplit plus automatiquement les champs de mot de passe avec l'utilisateur connecté.
+- Paramètres > Sécurité : le navigateur ne met plus automatiquement le nom de l'utilisateur dans la barre de recherche des stacks (à gauche) et ne pré-remplit plus les champs de mot de passe.
 - Le contrôle périodique des mises à jour d'images (toutes les 6 heures) rafraîchit aussi l'état des stacks, et deux contrôles ne peuvent plus s'exécuter en même temps.
 
 ## 2.3.0
