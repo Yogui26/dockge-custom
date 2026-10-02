@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.1
+
+### Corrections
+- Mobile, page d'accueil : avec un nom d'agent long, le bouton Maintenance ne déborde plus de la carte et ne recouvre plus les icônes Modifier, Log, Supprimer et Mise à jour. Le nom passe à la ligne et les icônes se placent dessous.
+- Mobile, Paramètres > Général : le bouton « Obtention automatique » passe sous le champ « Nom d'hôte principal » au lieu de le réduire à quelques caractères.
+
 ## 2.6.0
 
 ### Nouveautés

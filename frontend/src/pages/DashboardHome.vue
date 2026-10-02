@@ -30,24 +30,24 @@
                     <!-- Agent list -->
                     <div v-for="(agent, endpoint) in agentList" :key="endpoint" class="mb-3 agent">
                         <div class="shadow-box big-padding">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-baseline">
-                                    <h4 class="me-2">{{ getAgentName(agent) }}</h4>
+                            <div class="agent-header">
+                                <div class="agent-title">
+                                    <h4>{{ getAgentName(agent) }}</h4>
 
                                     <!-- Edit Name  -->
-                                    <font-awesome-icon class="ms-3 action-icon" icon="pen-to-square" @click="editAgentName(agent)" />
+                                    <font-awesome-icon class="action-icon" icon="pen-to-square" @click="editAgentName(agent)" />
 
                                     <!-- Live log of the agent -->
-                                    <font-awesome-icon v-if="agentStatusList[endpoint] === 'online'" class="ms-3 action-icon" icon="file-lines" data-toggle="tooltip" :title="$t('tooltipAgentLog')" :aria-label="$t('serverLog')" role="link" @click="$router.push(getAgentLogRouteLink(agent))" />
+                                    <font-awesome-icon v-if="agentStatusList[endpoint] === 'online'" class="action-icon" icon="file-lines" data-toggle="tooltip" :title="$t('tooltipAgentLog')" :aria-label="$t('serverLog')" role="link" @click="$router.push(getAgentLogRouteLink(agent))" />
 
                                     <!-- Remove Button -->
-                                    <font-awesome-icon v-if="endpoint !== ''" class="ms-3 action-icon" icon="trash" @click="showRemoveAgentDialog[agent.endpoint] = !showRemoveAgentDialog[agent.endpoint]" />
+                                    <font-awesome-icon v-if="endpoint !== ''" class="action-icon" icon="trash" @click="showRemoveAgentDialog[agent.endpoint] = !showRemoveAgentDialog[agent.endpoint]" />
 
                                     <!-- A new version of Dockge Custom is available for this agent -->
-                                    <font-awesome-icon v-if="agentStatusList[endpoint] === 'online' && agentUpdateList[endpoint]" class="ms-3 action-icon update-available-icon" icon="arrow-up" data-toggle="tooltip" :title="$t('tooltipAgentUpdate', agentUpdateList[endpoint])" role="button" @click="showUpdateAgentDialog[agent.endpoint] = true" />
+                                    <font-awesome-icon v-if="agentStatusList[endpoint] === 'online' && agentUpdateList[endpoint]" class="action-icon update-available-icon" icon="arrow-up" data-toggle="tooltip" :title="$t('tooltipAgentUpdate', agentUpdateList[endpoint])" role="button" @click="showUpdateAgentDialog[agent.endpoint] = true" />
                                 </div>
 
-                                <router-link v-if="agentStatusList[endpoint] === 'online'" class="btn btn-sm btn-normal" data-toggle="tooltip" :title="$t('tooltipAgentMaintenance')" :aria-label="$t('maintenance')" :to="getAgentRouteLink(agent)">
+                                <router-link v-if="agentStatusList[endpoint] === 'online'" class="btn btn-sm btn-normal agent-maintenance" data-toggle="tooltip" :title="$t('tooltipAgentMaintenance')" :aria-label="$t('maintenance')" :to="getAgentRouteLink(agent)">
                                     <font-awesome-icon icon="wrench" />
                                 </router-link>
                             </div>
@@ -526,6 +526,40 @@ table {
     a {
         text-decoration: none;
     }
+}
+
+// Name and icons on the left, maintenance button on the right.
+// A long name wraps, the icons move under it and the button never leaves the card.
+.agent-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.agent-title {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 1rem;
+    row-gap: 0.25rem;
+    min-width: 0;
+    margin-bottom: 0.25rem;
+
+    h4 {
+        min-width: 0;
+        margin-right: 0.5rem;
+        overflow-wrap: anywhere;
+    }
+
+    .action-icon {
+        flex-shrink: 0;
+    }
+}
+
+.agent-maintenance {
+    flex-shrink: 0;
 }
 
 </style>

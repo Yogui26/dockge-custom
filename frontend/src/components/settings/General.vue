@@ -43,7 +43,7 @@
                     {{ $t("primaryHostname") }}
                 </label>
 
-                <div class="input-group mb-3">
+                <div class="input-group hostname-group mb-3">
                     <input
                         v-model="settings.primaryHostname"
                         class="form-control"
@@ -204,4 +204,25 @@ export default {
     },
 };
 </script>
+
+<style lang="scss" scoped>
+// On a narrow screen the button does not fit next to the field: put it under it
+@media (max-width: 575.98px) {
+    .hostname-group {
+        flex-direction: column;
+        align-items: stretch;
+
+        .form-control,
+        .btn {
+            width: 100%;
+            margin-left: 0;
+            border-radius: var(--bs-border-radius) !important;
+        }
+
+        .btn {
+            margin-top: 0.5rem;
+        }
+    }
+}
+</style>
 
